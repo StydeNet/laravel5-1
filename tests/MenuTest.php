@@ -13,13 +13,7 @@ class MenuTest extends TestCase
         // Guest users
         $this->visit('/')->dontSee('Account');
 
-        // Create a user
-        $user = factory(App\User::class)->create([
-            'name'  => 'Duilio',
-            'email' => 'admin@styde.net',
-            'role'  => 'admin',
-            'password' => bcrypt('admin'),
-        ]);
+        $user = $this->createUser();
 
         $this->actingAs($user)
             ->visit('/')

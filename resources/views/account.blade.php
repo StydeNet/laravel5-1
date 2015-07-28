@@ -7,9 +7,10 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">My account</div>
                     <div class="panel-body">
+                        @include('partials/success')
                         <ul>
                             <li><a href="#">Edit profile</a></li>
-                            <li><a href="#">Change password</a></li>
+                            <li><a href="{{ url('account/password') }}">Change password</a></li>
                         </ul>
                     </div>
                 </div>

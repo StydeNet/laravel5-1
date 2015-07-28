@@ -54,6 +54,9 @@ Route::group(['middleware' => 'auth'], function () {
         return view('account');
     });
 
+    Route::get('account/password', 'AccountController@getPassword');
+    Route::post('account/password', 'AccountController@postPassword');
+
     Route::group(['middleware' => 'verified'], function () {
 
         Route::get('publish', function () {

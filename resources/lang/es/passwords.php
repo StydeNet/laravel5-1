@@ -27,6 +27,13 @@ return array(
 
     "reset"    => "Su contraseña ha sido restablecida!",
 
-    'email_subject' => "Recupera tu contraseña"
+    'email_subject' => "Recupera tu contraseña",
+
+    'reset' => array(
+        'current_password' => 'Contraseña actual',
+        'new_password' => 'Nueva contraseña',
+        'password_confirmation' => 'Confirma tu contraseña',
+        'change_button' => 'Cambiar contraseña'
+    ),
 
 );

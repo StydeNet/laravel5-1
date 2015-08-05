@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AccountController extends Controller
@@ -36,6 +37,26 @@ class AccountController extends Controller
 
         return redirect('account')
             ->with('alert', 'Your password has been changed');
+    }
+
+    public function editProfile()
+    {
+        return view('account/edit-profile');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $this->validate($request, [
+            'name' => 'required|min:2'
+        ]);
+
+        $user->fill($request->only(['name']));
+        $user->save();
+
+        return redirect('account')
+            ->with('alert', 'Your profile has been updated');
     }
 
 }

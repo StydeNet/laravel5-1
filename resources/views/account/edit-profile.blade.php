@@ -18,7 +18,7 @@
                                 <label class="col-md-4 control-label">@lang('validation.attributes.name')</label>
 
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" name="name" value="{{ old('name') }}">
+                                    <input type="text" class="form-control" name="name" value="{{ old('name', $user->name) }}">
                                 </div>
                             </div>
 

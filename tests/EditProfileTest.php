@@ -15,6 +15,7 @@ class EditProfileTest extends TestCase
             ->visit('account')
             ->click('Edit profile')
             ->seePageIs('account/edit-profile')
+            ->seeInField('name', 'Duilio')
             ->type('Silence', 'name')
             ->press('Update profile')
             ->seePageIs('account')

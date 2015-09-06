@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AccountController extends Controller
 {
@@ -18,25 +18,29 @@ class AccountController extends Controller
 
     public function postPassword(Request $request)
     {
-        $user = $request->user();
-
-        if(!Hash::check($request->get('current_password'), $user->password))
-        {
-            return redirect()->back()->withErrors([
-               'current_password' => 'The current password is not valid'
-            ]);
-        }
-
         $this->validate($request, [
             'password' => 'required|confirmed',
             'password_confirmation' => 'required'
         ]);
 
-        $user->password = bcrypt($request->get('password'));
-        $user->save();
+        $credentials = $request->only(
+            'current_password', 'password', 'password_confirmation'
+        );
 
-        return redirect('account')
-            ->with('alert', 'Your password has been changed');
+        $response = $this->validateCredentials($request->user(), $credentials, function ($user, $password) {
+            $this->changePassword($user, $password);
+        });
+
+        switch ($response) {
+            case Password::PASSWORD_RESET:
+                return redirect('account')
+                    ->with('alert', 'Your password has been changed');
+
+            default:
+                return redirect()->back()->withErrors([
+                    ['current_password' => trans($response)]
+                ]);
+        }
     }
 
     public function editProfile(Request $request)
@@ -61,4 +65,51 @@ class AccountController extends Controller
             ->with('alert', 'Your profile has been updated');
     }
 
+    /**
+     * @param User $user
+     * @param $password
+     */
+    private function changePassword(User $user, $password)
+    {
+        $user->password = bcrypt($password);
+        $user->save();
+    }
+
+    /**
+     * @param User $user
+     * @param $credentials
+     * @param $callback
+     * @return string
+     */
+    private function validateCredentials(User $user, $credentials, $callback)
+    {
+        list($password, $newPassword, $confirm) = [
+            $credentials['current_password'],
+            $credentials['password'],
+            $credentials['password_confirmation'],
+        ];
+
+        if (! Hash::check($password, $user->password)) {
+            return Password::INVALID_USER;
+        }
+
+        if (! $this->validateNewPassword($newPassword, $confirm)) {
+            return Password::INVALID_PASSWORD;
+        }
+
+        call_user_func($callback, $user, $newPassword);
+
+        return Password::PASSWORD_RESET;
+    }
+
+    /**
+     * @param $password
+     * @param $confirm
+     * @return bool
+     */
+    private function validateNewPassword($password, $confirm)
+    {
+        return $password === $confirm && mb_strlen($password) >= 6;
+    }
 }
+
